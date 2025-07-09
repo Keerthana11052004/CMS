@@ -1,0 +1,116 @@
+{% extends 'base_logged_in.html' %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block main_content %}
+<style>
+  .back-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    background: #6c757d;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .back-btn:hover {
+    background: #5a6268;
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  .dashboard-card {
+    font-size: 1.25rem;
+    max-width: 1050px;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    border-radius: 1.5rem;
+  }
+  .dashboard-card .card-header {
+    font-size: 2.2rem;
+    font-weight: 700;
+    padding: 2rem 2rem 1.5rem 2rem;
+    background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
+    color: #fff;
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+  .dashboard-card .card-body {
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+  }
+  .dashboard-links .btn {
+    font-size: 1.15em;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.2rem;
+    border: none;
+    color: #fff;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  }
+  .dashboard-links .btn:hover, .dashboard-links .btn:focus {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+    z-index: 2;
+  }
+  .btn-qr-scanner {
+    background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%);
+  }
+  .btn-qr-scanner:hover, .btn-qr-scanner:focus {
+    background: linear-gradient(90deg, #dd2476 0%, #ff512f 100%);
+    color: #fff;
+  }
+  .btn-summary {
+    background: linear-gradient(90deg, #36d1c4 0%, #1e90ff 100%);
+  }
+  .btn-summary:hover, .btn-summary:focus {
+    background: linear-gradient(90deg, #1e90ff 0%, #36d1c4 100%);
+    color: #fff;
+  }
+  .dashboard-card .card.mt-4 {
+    min-width: 320px;
+    font-size: 1.1em;
+    border-radius: 1rem;
+    margin-top: 2rem !important;
+  }
+  .dashboard-card .card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+</style>
+<button class="back-btn" onclick="window.location.href='{{ url_for('staff.logout') }}'" title="Logout">
+  <i class="bi bi-box-arrow-right"></i>
+</button>
+<div class="container-fluid py-5" style="min-height: 100vh;">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card dashboard-card">
+        <div class="card-header text-center">
+          Staff Dashboard
+        </div>
+        <div class="card-body">
+          <div class="row dashboard-links justify-content-center mb-4">
+            <div class="col-md-6">
+              <a href="{{ url_for('staff.qr_scanner') }}" class="btn btn-qr-scanner w-100">QR Code Scanner</a>
+            </div>
+            <div class="col-md-6">
+              <a href="{{ url_for('staff.summary') }}" class="btn btn-summary w-100">Daily Summary</a>
+            </div>
+          </div>
+          <div class="card mt-4" style="min-width: 320px;">
+            <div class="card-body text-center">
+              <h5 class="card-title">Real-time Meal Count</h5>
+              <!-- TODO: Show real-time meal count summary -->
+              <p class="card-text">No data available.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+{% endblock %} 

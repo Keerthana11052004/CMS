@@ -1,0 +1,64 @@
+{% extends 'base_logged_in.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block main_content %}
+<div class="container">
+  <h2 class="mb-4">Admin Dashboard</h2>
+  <div class="row my-4">
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-primary">
+        <div class="card-body">
+          <h5 class="card-title">Total Bookings</h5>
+          <p class="card-text">{{ total_bookings }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-success">
+        <div class="card-body">
+          <h5 class="card-title">Consumed Meals</h5>
+          <p class="card-text">{{ consumed_meals }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-info">
+        <div class="card-body">
+                  <h5 class="card-title">Booked Meals</h5>
+        <p class="card-text">{{ booked_meals }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-warning">
+        <div class="card-body">
+          <h5 class="card-title">Trends (Last 7 Days)</h5>
+          <table class="table table-sm table-borderless mb-0">
+            <tbody>
+              {% for t in trends %}
+              <tr><td>{{ t.booking_date }}</td><td>{{ t.count }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row my-4">
+    <div class="col-md-2 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.employee_reports') }}" class="btn btn-outline-primary w-100 h-100 d-flex align-items-center justify-content-center">Employee Report</a>
+    </div>
+    <div class="col-md-2 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.dept_location_reports') }}" class="btn btn-outline-info w-100 h-100 d-flex align-items-center justify-content-center">Dept/Location Reports</a>
+    </div>
+    <div class="col-md-2 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.cost_subsidy') }}" class="btn btn-outline-success w-100 h-100 d-flex align-items-center justify-content-center">Cost & Subsidy Report</a>
+    </div>
+    <div class="col-md-2 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.vendor_report') }}" class="btn btn-outline-warning w-100 h-100 d-flex align-items-center justify-content-center">Vendor/Customer Report</a>
+    </div>
+    <div class="col-md-2 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.export') }}" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center">Export Report</a>
+    </div>
+  </div>
+</div>
+{% endblock %} 

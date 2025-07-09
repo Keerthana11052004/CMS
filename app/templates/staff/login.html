@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Staff Login{% endblock %}
+{% block content %}
+<style>
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #6c757d;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  
+  .back-btn:hover {
+    background: #5a6268;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+</style>
+
+<button class="back-btn" onclick="window.location.href='{{ url_for('index') }}'" title="Back to Home">
+  <i class="bi bi-arrow-left"></i>
+</button>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="col-md-6">
+    <h2 class="mb-4">Staff Login</h2>
+    <form method="post">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
+      </div>
+      {{ form.submit(class="btn btn-primary w-100") }}
+    </form>
+  </div>
+</div>
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+{% endblock %} 
