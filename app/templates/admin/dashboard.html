@@ -1,38 +1,166 @@
 {% extends 'base_logged_in.html' %}
 {% block title %}Admin Dashboard{% endblock %}
 {% block main_content %}
+<style>
+  .dashboard-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+    border: none;
+  }
+  .dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .dashboard-card .card-body {
+    padding: 1.5rem;
+  }
+  .dashboard-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .dashboard-card .card-text {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0;
+  }
+  .action-btn {
+    padding: 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+  }
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .trends-table {
+    font-size: 0.85rem;
+  }
+  .trends-table td {
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 1199.98px) {
+    .dashboard-card .card-body {
+      padding: 1.25rem;
+    }
+    .dashboard-card .card-title {
+      font-size: 1rem;
+    }
+    .dashboard-card .card-text {
+      font-size: 1.75rem;
+    }
+    .action-btn {
+      padding: 0.9rem;
+      font-size: 0.85rem;
+      min-height: 55px;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .dashboard-card .card-body {
+      padding: 1rem;
+    }
+    .dashboard-card .card-title {
+      font-size: 0.95rem;
+    }
+    .dashboard-card .card-text {
+      font-size: 1.5rem;
+    }
+    .action-btn {
+      padding: 0.8rem;
+      font-size: 0.8rem;
+      min-height: 50px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .container {
+      padding: 0 0.5rem;
+    }
+    .dashboard-card .card-body {
+      padding: 0.9rem;
+    }
+    .dashboard-card .card-title {
+      font-size: 0.9rem;
+    }
+    .dashboard-card .card-text {
+      font-size: 1.3rem;
+    }
+    .action-btn {
+      padding: 0.7rem;
+      font-size: 0.75rem;
+      min-height: 45px;
+    }
+    .trends-table {
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .dashboard-card .card-body {
+      padding: 0.8rem;
+    }
+    .dashboard-card .card-title {
+      font-size: 0.85rem;
+    }
+    .dashboard-card .card-text {
+      font-size: 1.2rem;
+    }
+    .action-btn {
+      padding: 0.6rem;
+      font-size: 0.7rem;
+      min-height: 40px;
+    }
+    .trends-table {
+      font-size: 0.75rem;
+    }
+    .trends-table td {
+      padding: 0.2rem 0.4rem;
+    }
+  }
+</style>
+
 <div class="container">
   <h2 class="mb-4">Admin Dashboard</h2>
   <div class="row my-4">
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-primary">
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3">
+      <div class="card text-bg-primary dashboard-card">
         <div class="card-body">
           <h5 class="card-title">Total Bookings</h5>
           <p class="card-text">{{ total_bookings }}</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-success">
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3">
+      <div class="card text-bg-success dashboard-card">
         <div class="card-body">
           <h5 class="card-title">Consumed Meals</h5>
           <p class="card-text">{{ consumed_meals }}</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-info">
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3">
+      <div class="card text-bg-info dashboard-card">
         <div class="card-body">
-                  <h5 class="card-title">Booked Meals</h5>
-        <p class="card-text">{{ booked_meals }}</p>
+          <h5 class="card-title">Booked Meals</h5>
+          <p class="card-text">{{ booked_meals }}</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-warning">
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3">
+      <div class="card text-bg-warning dashboard-card">
         <div class="card-body">
           <h5 class="card-title">Trends (Last 7 Days)</h5>
-          <table class="table table-sm table-borderless mb-0">
+          <table class="table table-sm table-borderless mb-0 trends-table">
             <tbody>
               {% for t in trends %}
               <tr><td>{{ t.booking_date }}</td><td>{{ t.count }}</td></tr>
@@ -44,20 +172,20 @@
     </div>
   </div>
   <div class="row my-4">
-    <div class="col-md-2 mb-3 d-flex align-items-stretch">
-      <a href="{{ url_for('admin.employee_reports') }}" class="btn btn-outline-primary w-100 h-100 d-flex align-items-center justify-content-center">Employee Report</a>
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.employee_reports') }}" class="btn btn-outline-primary w-100 action-btn">Employee Report</a>
     </div>
-    <div class="col-md-2 mb-3 d-flex align-items-stretch">
-      <a href="{{ url_for('admin.dept_location_reports') }}" class="btn btn-outline-info w-100 h-100 d-flex align-items-center justify-content-center">Dept/Location Reports</a>
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.dept_location_reports') }}" class="btn btn-outline-info w-100 action-btn">Dept/Location Reports</a>
     </div>
-    <div class="col-md-2 mb-3 d-flex align-items-stretch">
-      <a href="{{ url_for('admin.cost_subsidy') }}" class="btn btn-outline-success w-100 h-100 d-flex align-items-center justify-content-center">Cost & Subsidy Report</a>
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.cost_subsidy') }}" class="btn btn-outline-success w-100 action-btn">Cost & Subsidy Report</a>
     </div>
-    <div class="col-md-2 mb-3 d-flex align-items-stretch">
-      <a href="{{ url_for('admin.vendor_report') }}" class="btn btn-outline-warning w-100 h-100 d-flex align-items-center justify-content-center">Vendor/Customer Report</a>
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.vendor_report') }}" class="btn btn-outline-warning w-100 action-btn">Vendor/Customer Report</a>
     </div>
-    <div class="col-md-2 mb-3 d-flex align-items-stretch">
-      <a href="{{ url_for('admin.export') }}" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center">Export Report</a>
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3 d-flex align-items-stretch">
+      <a href="{{ url_for('admin.export') }}" class="btn btn-outline-secondary w-100 action-btn">Export Report</a>
     </div>
   </div>
 </div>

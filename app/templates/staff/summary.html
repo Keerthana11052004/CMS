@@ -68,6 +68,146 @@
     margin-right: 1rem;
     margin-bottom: 0.5rem;
   }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 1199.98px) {
+    .summary-card {
+      font-size: 1.1rem;
+    }
+    .summary-card .card-header {
+      font-size: 2rem;
+      padding: 1.8rem 1.8rem 0.9rem 1.8rem;
+    }
+    .summary-card .card-body {
+      padding: 2.2rem 2.2rem 1.8rem 2.2rem;
+    }
+    .summary-card table {
+      font-size: 1em;
+    }
+    .summary-card th, .summary-card td {
+      padding: 0.9rem 1.1rem;
+    }
+    .summary-card .btn {
+      font-size: 1em;
+      padding: 0.45rem 1.8rem;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .summary-card {
+      font-size: 1rem;
+    }
+    .summary-card .card-header {
+      font-size: 1.8rem;
+      padding: 1.6rem 1.6rem 0.8rem 1.6rem;
+    }
+    .summary-card .card-body {
+      padding: 2rem 2rem 1.6rem 2rem;
+    }
+    .summary-card table {
+      font-size: 0.95em;
+    }
+    .summary-card th, .summary-card td {
+      padding: 0.8rem 1rem;
+    }
+    .summary-card th {
+      font-size: 1.1em;
+    }
+    .summary-card .btn {
+      font-size: 0.95em;
+      padding: 0.4rem 1.6rem;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .back-btn {
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+    .summary-card {
+      font-size: 0.9rem;
+      margin: 0 0.5rem;
+    }
+    .summary-card .card-header {
+      font-size: 1.6rem;
+      padding: 1.4rem 1.4rem 0.7rem 1.4rem;
+    }
+    .summary-card .card-body {
+      padding: 1.8rem 1.8rem 1.4rem 1.8rem;
+    }
+    .summary-card table {
+      font-size: 0.9em;
+    }
+    .summary-card th, .summary-card td {
+      padding: 0.7rem 0.8rem;
+    }
+    .summary-card th {
+      font-size: 1em;
+    }
+    .summary-card .btn {
+      font-size: 0.9em;
+      padding: 0.35rem 1.4rem;
+      margin-right: 0.8rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .summary-card {
+      font-size: 0.85rem;
+      margin: 0 0.25rem;
+    }
+    .summary-card .card-header {
+      font-size: 1.4rem;
+      padding: 1.2rem 1.2rem 0.6rem 1.2rem;
+    }
+    .summary-card .card-body {
+      padding: 1.6rem 1.6rem 1.2rem 1.6rem;
+    }
+    .summary-card table {
+      font-size: 0.85em;
+    }
+    .summary-card th, .summary-card td {
+      padding: 0.6rem 0.7rem;
+    }
+    .summary-card th {
+      font-size: 0.95em;
+    }
+    .summary-card .btn {
+      font-size: 0.85em;
+      padding: 0.3rem 1.2rem;
+      margin-right: 0.6rem;
+    }
+  }
+
+  @media (max-width: 375px) {
+    .summary-card {
+      font-size: 0.8rem;
+    }
+    .summary-card .card-header {
+      font-size: 1.2rem;
+      padding: 1rem 1rem 0.5rem 1rem;
+    }
+    .summary-card .card-body {
+      padding: 1.4rem 1.4rem 1rem 1.4rem;
+    }
+    .summary-card table {
+      font-size: 0.8em;
+    }
+    .summary-card th, .summary-card td {
+      padding: 0.5rem 0.6rem;
+    }
+    .summary-card th {
+      font-size: 0.9em;
+    }
+    .summary-card .btn {
+      font-size: 0.8em;
+      padding: 0.25rem 1rem;
+      margin-right: 0.5rem;
+    }
+  }
 </style>
 <button class="back-btn" onclick="window.location.href='{{ url_for('staff.dashboard') }}'" title="Back to Dashboard">
   <i class="bi bi-arrow-left"></i>

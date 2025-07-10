@@ -22,4 +22,14 @@ class AddUserForm(FlaskForm):
     location_id = SelectField('Location', coerce=int, validators=[DataRequired()])
     role_id = SelectField('Role', coerce=int, validators=[DataRequired()])
     is_active = BooleanField('Active', default=True)
-    submit = SubmitField('Add User') 
+    submit = SubmitField('Add User')
+
+class ProfileUpdateForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', render_kw={'readonly': True})
+    employee_id = StringField('Employee ID', render_kw={'readonly': True})
+    department_id = SelectField('Department', coerce=int)
+    location_id = SelectField('Location', coerce=int)
+    password = PasswordField('New Password')
+    confirm_password = PasswordField('Confirm Password')
+    submit = SubmitField('Update Profile') 

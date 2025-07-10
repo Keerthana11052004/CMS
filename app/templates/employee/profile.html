@@ -68,56 +68,45 @@
         </div>
         <div class="card-body">
           <form method="post">
+            {{ form.hidden_tag() }}
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ employee.name if employee else current_user.name }}" required>
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
               </div>
               <div class="col-md-6">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ employee.email if employee else current_user.email }}" required readonly>
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
               </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="employee_id" class="form-label">Employee ID</label>
-                <input type="text" class="form-control" id="employee_id" name="employee_id" value="{{ employee.employee_id if employee else '' }}" readonly>
+                {{ form.employee_id.label(class="form-label") }}
+                {{ form.employee_id(class="form-control") }}
               </div>
               <div class="col-md-6">
-                <label for="department" class="form-label">Department</label>
-                <select class="form-select" id="department" name="department_id">
-                  <option value="">Select Department</option>
-                  {% for department in departments %}
-                    <option value="{{ department.id }}" {% if employee and employee.department_id == department.id %}selected{% endif %}>{{ department.name }}</option>
-                  {% endfor %}
-                </select>
+                {{ form.department_id.label(class="form-label") }}
+                {{ form.department_id(class="form-select") }}
               </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="location" class="form-label">Location</label>
-                <select class="form-select" id="location" name="location_id">
-                  <option value="">Select Location</option>
-                  {% for location in locations %}
-                    <option value="{{ location.id }}" {% if employee and employee.location_id == location.id %}selected{% endif %}>{{ location.name }}</option>
-                  {% endfor %}
-                </select>
+                {{ form.location_id.label(class="form-label") }}
+                {{ form.location_id(class="form-select") }}
               </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="password" class="form-label">New Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Leave blank to keep current password">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
               </div>
               <div class="col-md-6">
-                <label for="confirm_password" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control") }}
               </div>
             </div>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle me-2"></i>Update Profile
-              </button>
+              {{ form.submit(class="btn btn-primary") }}
             </div>
           </form>
         </div>

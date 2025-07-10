@@ -84,14 +84,14 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Example row -->
+                {% for emp in employees %}
                 <tr>
-                  <td>John Doe</td>
-                  <td>IT</td>
-                  <td>20</td>
-                  <td>18</td>
+                  <td>{{ emp.employee }}</td>
+                  <td>{{ emp.department or '-' }}</td>
+                  <td>-</td>
+                  <td>-</td>
                 </tr>
-                <!-- TODO: Loop through employee report data -->
+                {% endfor %}
               </tbody>
             </table>
           </div>

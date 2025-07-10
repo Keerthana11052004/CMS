@@ -56,13 +56,184 @@
     padding: 0.75rem 2.5rem;
     border-radius: 0.75rem;
   }
+  .qr-code-container {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .qr-code-container h4 {
+    margin-bottom: 1rem;
+    color: #1976d2;
+  }
+  .qr-code-img {
+    width: 180px;
+    height: 180px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    border-radius: 1rem;
+    transition: transform 0.2s ease;
+  }
+  .qr-code-img:hover {
+    transform: scale(1.05);
+  }
+  .download-btn {
+    margin-top: 1rem;
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 1199.98px) {
+    .book-card {
+      font-size: 1.1rem;
+    }
+    .book-card .card-header {
+      font-size: 2rem;
+      padding: 1.8rem 1.8rem 0.9rem 1.8rem;
+    }
+    .book-card .card-body {
+      padding: 2.2rem 2.2rem 1.8rem 2.2rem;
+    }
+    .book-card label.form-label {
+      font-size: 1.1em;
+    }
+    .book-card .form-control, .book-card .form-select {
+      font-size: 1.1em;
+      padding: 0.7rem 1.1rem;
+    }
+    .book-card .btn-primary {
+      font-size: 1.1em;
+      padding: 0.7rem 2.2rem;
+    }
+    .qr-code-img {
+      width: 160px;
+      height: 160px;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .book-card {
+      font-size: 1rem;
+    }
+    .book-card .card-header {
+      font-size: 1.8rem;
+      padding: 1.6rem 1.6rem 0.8rem 1.6rem;
+    }
+    .book-card .card-body {
+      padding: 2rem 2rem 1.6rem 2rem;
+    }
+    .book-card label.form-label {
+      font-size: 1.05em;
+    }
+    .book-card .form-control, .book-card .form-select {
+      font-size: 1.05em;
+      padding: 0.65rem 1rem;
+    }
+    .book-card .btn-primary {
+      font-size: 1em;
+      padding: 0.65rem 2rem;
+    }
+    .qr-code-img {
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .back-btn {
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+    .book-card {
+      font-size: 0.9rem;
+      margin: 0 0.5rem;
+    }
+    .book-card .card-header {
+      font-size: 1.6rem;
+      padding: 1.4rem 1.4rem 0.7rem 1.4rem;
+    }
+    .book-card .card-body {
+      padding: 1.8rem 1.8rem 1.4rem 1.8rem;
+    }
+    .book-card label.form-label {
+      font-size: 1em;
+    }
+    .book-card .form-control, .book-card .form-select {
+      font-size: 1em;
+      padding: 0.6rem 0.9rem;
+    }
+    .book-card .btn-primary {
+      font-size: 0.95em;
+      padding: 0.6rem 1.8rem;
+    }
+    .qr-code-img {
+      width: 140px;
+      height: 140px;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .book-card {
+      font-size: 0.85rem;
+      margin: 0 0.25rem;
+    }
+    .book-card .card-header {
+      font-size: 1.4rem;
+      padding: 1.2rem 1.2rem 0.6rem 1.2rem;
+    }
+    .book-card .card-body {
+      padding: 1.6rem 1.6rem 1.2rem 1.6rem;
+    }
+    .book-card label.form-label {
+      font-size: 0.95em;
+    }
+    .book-card .form-control, .book-card .form-select {
+      font-size: 0.95em;
+      padding: 0.55rem 0.8rem;
+    }
+    .book-card .btn-primary {
+      font-size: 0.9em;
+      padding: 0.55rem 1.6rem;
+    }
+    .qr-code-img {
+      width: 130px;
+      height: 130px;
+    }
+  }
+
+  @media (max-width: 375px) {
+    .book-card {
+      font-size: 0.8rem;
+    }
+    .book-card .card-header {
+      font-size: 1.2rem;
+      padding: 1rem 1rem 0.5rem 1rem;
+    }
+    .book-card .card-body {
+      padding: 1.4rem 1.4rem 1rem 1.4rem;
+    }
+    .book-card label.form-label {
+      font-size: 0.9em;
+    }
+    .book-card .form-control, .book-card .form-select {
+      font-size: 0.9em;
+      padding: 0.5rem 0.7rem;
+    }
+    .book-card .btn-primary {
+      font-size: 0.85em;
+      padding: 0.5rem 1.4rem;
+    }
+    .qr-code-img {
+      width: 120px;
+      height: 120px;
+    }
+  }
 </style>
 <button class="back-btn" onclick="window.location.href='{{ url_for('employee.dashboard') }}'" title="Back to Dashboard">
   <i class="bi bi-arrow-left"></i>
 </button>
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-8 col-md-10 col-sm-12">
       <div class="card book-card">
         <div class="card-header">
           Book a Meal
@@ -85,10 +256,10 @@
             {{ form.submit(class="btn btn-primary w-100") }}
           </form>
           {% if qr_image_base64 %}
-          <div class="text-center mt-5">
-            <h4 class="mb-3">Your Meal QR Code</h4>
-            <img id="meal-qr-img" src="data:image/png;base64,{{ qr_image_base64 }}" alt="Meal QR Code" style="width: 180px; height: 180px; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border-radius: 1rem;">
-            <div class="mt-3">
+          <div class="qr-code-container">
+            <h4>Your Meal QR Code</h4>
+            <img id="meal-qr-img" src="data:image/png;base64,{{ qr_image_base64 }}" alt="Meal QR Code" class="qr-code-img">
+            <div class="download-btn">
               <a id="download-qr-btn" href="data:image/png;base64,{{ qr_image_base64 }}" download="meal_qr_code.png" class="btn btn-success">
                 <i class="bi bi-download me-2"></i>Download QR Code
               </a>

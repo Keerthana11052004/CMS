@@ -64,8 +64,14 @@ def dashboard():
 @admin_bp.route('/employee_reports')
 @login_required
 def employee_reports():
-    # TODO: Employee meal usage reports
-    return render_template('admin/employee_reports.html')
+    cur = mysql.connection.cursor()
+    cur.execute('''
+        SELECT e.name as employee, d.name as department, e.id as employee_id
+        FROM employees e
+        LEFT JOIN departments d ON e.department_id = d.id
+    ''')
+    employees = cur.fetchall()
+    return render_template('admin/employee_reports.html', employees=employees)
 
 @admin_bp.route('/dept_location_reports')
 @login_required

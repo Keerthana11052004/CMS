@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, abort
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import LoginForm, BookMealForm
+from app.forms import LoginForm, BookMealForm, ProfileUpdateForm
 from app.utils import generate_meal_qr_code
 from app import mysql, User
 import hashlib
@@ -131,33 +131,11 @@ def cancel_booking(booking_id):
 @login_required
 def profile():
     cur = mysql.connection.cursor()
-
-    if request.method == 'POST':
-        name = request.form.get('name')
-        department_id = request.form.get('department_id') or None
-        location_id = request.form.get('location_id') or None
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-
-        # Password update logic
-        if password:
-            if password != confirm_password:
-                flash('Passwords do not match.', 'danger')
-            else:
-                password_hash = hashlib.sha256(password.encode()).hexdigest()
-                cur.execute("UPDATE employees SET password_hash=%s WHERE id=%s", (password_hash, current_user.id))
-                mysql.connection.commit()
-                flash('Password updated successfully.', 'success')
-
-        # Update name, department, location
-        cur.execute(
-            "UPDATE employees SET name=%s, department_id=%s, location_id=%s WHERE id=%s",
-            (name, department_id, location_id, current_user.id)
-        )
-        mysql.connection.commit()
-        flash('Profile updated successfully.', 'success')
-        return redirect(url_for('employee.profile'))
-
+    # Get all locations and departments for dropdowns
+    cur.execute("SELECT id, name FROM locations ORDER BY name")
+    locations = cur.fetchall()
+    cur.execute("SELECT id, name FROM departments ORDER BY name")
+    departments = cur.fetchall()
     # Get current employee details
     cur.execute("""
         SELECT e.*, d.name as department_name, l.name as location_name 
@@ -167,11 +145,38 @@ def profile():
         WHERE e.id = %s
     """, (current_user.id,))
     employee = cur.fetchone()
-
-    # Get all locations and departments for dropdowns
-    cur.execute("SELECT id, name FROM locations ORDER BY name")
-    locations = cur.fetchall()
-    cur.execute("SELECT id, name FROM departments ORDER BY name")
-    departments = cur.fetchall()
-
-    return render_template('employee/profile.html', employee=employee, locations=locations, departments=departments) 
+    # Prepare form
+    form = ProfileUpdateForm()
+    form.department_id.choices = [(d['id'], d['name']) for d in departments]
+    form.location_id.choices = [(l['id'], l['name']) for l in locations]
+    if request.method == 'POST' and form.validate_on_submit():
+        name = form.name.data
+        department_id = form.department_id.data or None
+        location_id = form.location_id.data or None
+        password = form.password.data
+        confirm_password = form.confirm_password.data
+        # Password update logic
+        if password:
+            if password != confirm_password:
+                flash('Passwords do not match.', 'danger')
+            else:
+                password_hash = hashlib.sha256(password.encode()).hexdigest()
+                cur.execute("UPDATE employees SET password_hash=%s WHERE id=%s", (password_hash, current_user.id))
+                mysql.connection.commit()
+                flash('Password updated successfully.', 'success')
+        # Update name, department, location
+        cur.execute(
+            "UPDATE employees SET name=%s, department_id=%s, location_id=%s WHERE id=%s",
+            (name, department_id, location_id, current_user.id)
+        )
+        mysql.connection.commit()
+        flash('Profile updated successfully.', 'success')
+        return redirect(url_for('employee.profile'))
+    # Pre-populate form fields on GET
+    elif request.method == 'GET' and employee:
+        form.name.data = employee['name']
+        form.email.data = employee['email']
+        form.employee_id.data = employee['employee_id']
+        form.department_id.data = employee['department_id']
+        form.location_id.data = employee['location_id']
+    return render_template('employee/profile.html', form=form, employee=employee, locations=locations, departments=departments) 
