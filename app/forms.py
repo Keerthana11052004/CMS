@@ -1,17 +1,19 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, BooleanField, FileField
 from wtforms.validators import DataRequired, Email
+from flask_babel import lazy_gettext as _l
+from datetime import date
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    employee_id = StringField(_l('Employee ID'), validators=[DataRequired()])
+    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    submit = SubmitField(_l('Login'))
 
 class BookMealForm(FlaskForm):
-    shift = SelectField('Shift', choices=[('Breakfast', 'Breakfast'), ('Lunch', 'Lunch'), ('Dinner', 'Dinner')], validators=[DataRequired()])
-    date = DateField('Date', validators=[DataRequired()])
-    recurrence = SelectField('Recurrence', choices=[('None', 'None'), ('Daily', 'Daily'), ('Weekly', 'Weekly')], default='None')
-    submit = SubmitField('Book')
+    shift = SelectField(_l('Shift'), choices=[('Breakfast', _l('Breakfast')), ('Lunch', _l('Lunch')), ('Dinner', _l('Dinner'))], validators=[DataRequired()])
+    date = DateField(_l('Date'), validators=[DataRequired()])
+    recurrence = SelectField(_l('Recurrence'), choices=[('None', _l('None')), ('Daily', _l('Daily')), ('Weekly', _l('Weekly'))], default='None')
+    submit = SubmitField(_l('Book'))
 
 class AddUserForm(FlaskForm):
     employee_id = StringField('Employee ID', validators=[DataRequired()])
@@ -32,4 +34,21 @@ class ProfileUpdateForm(FlaskForm):
     location_id = SelectField('Location', coerce=int)
     password = PasswordField('New Password')
     confirm_password = PasswordField('Confirm Password')
-    submit = SubmitField('Update Profile') 
+    submit = SubmitField('Update Profile')
+
+class VendorForm(FlaskForm):
+    name = StringField('Vendor Name', validators=[DataRequired()])
+    contact_info = StringField('Contact Info')
+    purpose = SelectField('Purpose', choices=[])
+    unit = SelectField('Unit', choices=[])
+    count = StringField('Count')
+    food_licence = FileField('Food Licence')
+    agreement_date = DateField('Agreement for Approval')
+    submit = SubmitField('Save')
+
+class AddMenuForm(FlaskForm):
+    location_id = SelectField('Unit', coerce=int, validators=[DataRequired()])
+    menu_date = DateField('Menu Date', validators=[DataRequired()], default=date.today)
+    meal_type = SelectField('Meal Type', choices=[('Breakfast', 'Breakfast'), ('Lunch', 'Lunch'), ('Dinner', 'Dinner')], validators=[DataRequired()])
+    items = StringField('Menu Items', validators=[DataRequired()])
+    submit = SubmitField('Add Menu')

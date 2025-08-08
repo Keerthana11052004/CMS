@@ -61,6 +61,22 @@
     background: #fff;
     color: #333;
   }
+  .meal-count {
+    font-weight: 500;
+    color: #1976d2;
+  }
+  .consumed-count {
+    font-weight: 500;
+    color: #4caf50;
+  }
+  .table-info {
+    background-color: #e3f2fd !important;
+    font-weight: 500;
+  }
+  .table-info td {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+  }
 </style>
 <button class="back-btn" onclick="window.location.href='{{ url_for('admin.dashboard') }}'" title="Back to Dashboard">
   <i class="bi bi-arrow-left"></i>
@@ -70,29 +86,38 @@
     <div class="col-lg-12">
       <div class="card dept-location-card">
         <div class="card-header text-center">
-          Department / Location Reports
+          📄 Department / Location Reports
         </div>
         <div class="card-body">
           <form class="row g-3 mb-3">
             <div class="col-md-4">
               <label for="department" class="form-label">Department</label>
               <select class="form-select" id="department" name="department">
-                <option value="">All</option>
-                <option value="IT">IT</option>
-                <option value="HR">HR</option>
-                <option value="Finance">Finance</option>
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept }}" {% if selected_department == dept %}selected{% endif %}>{{ dept }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="col-md-4">
               <label for="location" class="form-label">Location</label>
               <select class="form-select" id="location" name="location">
-                <option value="">All</option>
-                <option value="Unit 1">Unit 1</option>
-                <option value="Unit 2">Unit 2</option>
+                <option value="">All Locations</option>
+                {% for loc in locations %}
+                <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="col-md-4 align-self-end">
-              <button type="submit" class="btn btn-primary">Filter</button>
+              <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-funnel me-1"></i>Filter
+              </button>
+              <a href="{{ url_for('admin.dept_location_reports') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-clockwise me-1"></i>Clear
+              </a>
+              <button class="btn btn-outline-secondary" onclick="window.print()" type="button">
+                <i class="bi bi-printer me-1"></i>Print
+              </button>
             </div>
           </form>
           <div class="table-responsive">
@@ -106,14 +131,29 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Example row -->
+                {% for report in reports %}
                 <tr>
-                  <td>IT</td>
-                  <td>Unit 1</td>
-                  <td>100</td>
-                  <td>95</td>
+                  <td>{{ report.department or '-' }}</td>
+                  <td>{{ report.location or '-' }}</td>
+                  <td class="meal-count">{{ report.meals_booked or 0 }}</td>
+                  <td class="consumed-count">{{ report.meals_consumed or 0 }}</td>
                 </tr>
-                <!-- TODO: Loop through report data -->
+                {% endfor %}
+                {% if reports %}
+                <tr class="table-info">
+                  <td><strong>Total</strong></td>
+                  <td>-</td>
+                  <td class="meal-count"><strong>{{ reports | sum(attribute='meals_booked') or 0 }}</strong></td>
+                  <td class="consumed-count"><strong>{{ reports | sum(attribute='meals_consumed') or 0 }}</strong></td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No data found for the selected filters
+                  </td>
+                </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>

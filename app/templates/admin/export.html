@@ -50,7 +50,7 @@
     <div class="col-lg-12">
       <div class="card export-card">
         <div class="card-header text-center">
-          Export Meal Data
+          📤 Export Meal Data
         </div>
         <div class="card-body">
           <form class="row g-3 mb-3" method="get" action="">
@@ -80,10 +80,45 @@
               </select>
             </div>
             <div class="col-md-12 mt-3 d-flex gap-2">
+              <button type="submit" class="btn btn-primary">Filter</button>
+              <a href="{{ url_for('admin.export') }}" class="btn btn-outline-secondary">Clear</a>
               <button type="submit" formaction="{{ url_for('admin.export_meal_excel') }}" class="btn btn-success">Export to Excel</button>
-              <button type="submit" formaction="{{ url_for('admin.export_meal_csv') }}" class="btn btn-primary ms-2">Export to CSV</button>
+              <button type="submit" formaction="{{ url_for('admin.export_meal_csv') }}" class="btn btn-primary">Export to CSV</button>
+              <button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Print</button>
             </div>
           </form>
+          <div class="table-responsive mt-4">
+            <table class="table table-bordered table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Location</th>
+                  <th>Booking Date</th>
+                  <th>Shift</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if rows and rows|length > 0 %}
+                  {% for row in rows %}
+                  <tr>
+                    <td>{{ row.employee }}</td>
+                    <td>{{ row.department or '-' }}</td>
+                    <td>{{ row.location or '-' }}</td>
+                    <td>{{ row.booking_date }}</td>
+                    <td>{{ row.shift }}</td>
+                    <td>{{ row.status }}</td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center text-muted">No data found for the selected filters.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

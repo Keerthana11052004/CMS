@@ -1,27 +1,7 @@
 {% extends 'base_logged_in.html' %}
-{% block title %}Booking History{% endblock %}
+{% block title %}{{ _('Booking History') }}{% endblock %}
 {% block main_content %}
 <style>
-  .back-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: #6c757d;
-    border: none;
-    color: #fff;
-    font-size: 1.2rem;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-  .back-btn:hover {
-    background: #5a6268;
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  }
   .history-card {
     font-size: 1.25rem;
     max-width: 1100px;
@@ -243,31 +223,57 @@
     }
   }
 </style>
-<button class="back-btn" onclick="window.location.href='{{ url_for('employee.dashboard') }}'" title="Back to Dashboard">
-  <i class="bi bi-arrow-left"></i>
-</button>
+<div class="d-flex justify-content-end align-items-center" style="position: fixed; top: 20px; right: 20px; z-index: 1000; gap: 1rem;">
+    <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('employee.dashboard') }}';" title="{{ _('Back to Dashboard') }}">
+        <i class="bi bi-arrow-left"></i>
+    </button>
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-translate"></i> English
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+            <li><a class="dropdown-item {% if g.locale == 'en' %}active{% endif %}" href="?lang=en">English</a></li>
+            <li><a class="dropdown-item {% if g.locale == 'ta' %}active{% endif %}" href="?lang=ta">Tamil</a></li>
+            <li><a class="dropdown-item {% if g.locale == 'hi' %}active{% endif %}" href="?lang=hi">Hindi</a></li>
+        </ul>
+    </div>
+</div>
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-12">
       <div class="card history-card">
         <div class="card-header text-center">
-          My Bookings
+          📅 {{ _('My Bookings') }}
         </div>
         <div class="card-body">
+          <form class="row g-3 mb-4" method="get" action="">
+            <div class="col-md-3">
+              <input type="date" class="form-control" name="start_date" placeholder="{{ _('Start Date') }}" value="{{ request.args.get('start_date', '') }}">
+            </div>
+            <div class="col-md-3">
+              <input type="date" class="form-control" name="end_date" placeholder="{{ _('End Date') }}" value="{{ request.args.get('end_date', '') }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-center">
+              <button type="submit" class="btn btn-primary me-2"><i class="bi bi-funnel"></i> {{ _('Filter') }}</button>
+              <a href="{{ url_for('employee.booking_history') }}" class="btn btn-secondary"><i class="bi bi-x-circle"></i> {{ _('Clear') }}</a>
+            </div>
+          </form>
           {% if bookings %}
           <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Shift</th>
-                  <th>Status</th>
-                  <th>QR Code</th>
+                  <th>{{ _('SI.No') }}</th>
+                  <th>{{ _('Date') }}</th>
+                  <th>{{ _('Shift') }}</th>
+                  <th>{{ _('Status') }}</th>
+                  <th>{{ _('QR Code') }}</th>
                 </tr>
               </thead>
               <tbody>
                 {% for booking in bookings %}
                 <tr>
+                  <td>{{ loop.index }}</td>
                   <td>{{ booking.booking_date.strftime('%Y-%m-%d') if booking.booking_date else booking.booking_date }}</td>
                   <td>{{ booking.shift }}</td>
                   <td>{{ booking.status }}</td>
@@ -277,9 +283,9 @@
                            alt="QR Code" 
                            class="qr-code-img"
                            data-qr-src="data:image/png;base64,{{ booking.qr_code_data }}"
-                           title="Click to view larger QR code">
+                           title="{{ _('Click to view larger QR code') }}">
                     {% else %}
-                      N/A
+                      {{ _('N/A') }}
                     {% endif %}
                   </td>
                 </tr>
@@ -288,7 +294,7 @@
             </table>
           </div>
           {% else %}
-            <div class="alert alert-info text-center mt-4">No bookings found.</div>
+            <div class="alert alert-info text-center mt-4">{{ _('No bookings found.') }}</div>
           {% endif %}
         </div>
       </div>
@@ -301,8 +307,8 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="qrModalLabel">{{ _('QR Code') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
       </div>
       <div class="modal-body">
         <img id="modalQRImage" src="" alt="QR Code">

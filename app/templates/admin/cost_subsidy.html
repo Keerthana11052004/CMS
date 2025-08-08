@@ -70,28 +70,61 @@
     <div class="col-lg-12">
       <div class="card cost-subsidy-card">
         <div class="card-header text-center">
-          Cost & Subsidy Analysis
+          💰 Cost & Subsidy Analysis
         </div>
         <div class="card-body">
+          <form class="row g-3 mb-4" method="get" action="{{ url_for('admin.cost_subsidy') }}">
+            <div class="col-md-3">
+              <input type="text" class="form-control" name="employee" placeholder="Filter by Employee Name" value="{{ request.args.get('employee', '') }}">
+            </div>
+            <div class="col-md-3">
+              <select class="form-control" name="department">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept.name }}" {% if request.args.get('department') == dept.name %}selected{% endif %}>{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-control" name="unit">
+                <option value="">All Locations</option>
+                {% for unit in units %}
+                <option value="{{ unit.name }}" {% if request.args.get('unit') == unit.name %}selected{% endif %}>{{ unit.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-center">
+              <button type="submit" class="btn btn-primary me-2"><i class="bi bi-funnel"></i> Filter</button>
+              <a href="{{ url_for('admin.cost_subsidy') }}" class="btn btn-secondary me-2"><i class="bi bi-x-circle"></i> Clear</a>
+              <a id="export-link" class="btn btn-success"><i class="bi bi-download"></i> Export</a>
+            </div>
+          </form>
           <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle mb-0">
               <thead>
                 <tr>
                   <th>Employee</th>
+                  <th>Department</th>
+                  <th>Location</th>
+                  <th>Meals Booked</th>
                   <th>Total Cost</th>
-                  <th>Company Subsidy</th>
-                  <th>Employee Contribution</th>
                 </tr>
               </thead>
               <tbody>
-                <!-- Example row -->
+                {% for row in cost_subsidy_data %}
                 <tr>
-                  <td>John Doe</td>
-                  <td>₹2000</td>
-                  <td>₹1200</td>
-                  <td>₹800</td>
+                  <td>{{ row.employee }}</td>
+                  <td>{{ row.department }}</td>
+                  <td>{{ row.unit }}</td>
+                  <td>{{ row.meals_booked }}</td>
+                  <td>₹{{ row.total_cost }}</td>
                 </tr>
-                <!-- TODO: Loop through cost/subsidy data -->
+                {% endfor %}
+                {% if cost_subsidy_data|length == 0 %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted">No data available.</td>
+                </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>
@@ -102,4 +135,19 @@
 </div>
 <!-- Bootstrap Icons CDN -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script>
+document.getElementById('export-link').onclick = function(e) {
+    const employeeFilter = document.querySelector('input[name="employee"]').value;
+    const departmentFilter = document.querySelector('select[name="department"]').value;
+    const unitFilter = document.querySelector('select[name="unit"]').value;
+    let url = "/admin/export_cost_subsidy?";
+    const params = [];
+    if (employeeFilter) params.push("employee=" + encodeURIComponent(employeeFilter));
+    if (departmentFilter) params.push("department=" + encodeURIComponent(departmentFilter));
+    if (unitFilter) params.push("unit=" + encodeURIComponent(unitFilter));
+    url += params.join("&");
+    this.href = url;
+    // Let the browser handle the download
+};
+</script>
 {% endblock %} 

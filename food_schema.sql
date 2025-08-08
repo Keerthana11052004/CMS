@@ -43,7 +43,9 @@ CREATE TABLE employees (
 CREATE TABLE vendors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    contact_info VARCHAR(255)
+    contact_info VARCHAR(255),
+    purpose VARCHAR(255),
+    cost DECIMAL(10,2)
 );
 
 -- Meals Table
@@ -99,6 +101,14 @@ CREATE TABLE meal_consumption_log (
     FOREIGN KEY (meal_id) REFERENCES meals(id),
     FOREIGN KEY (location_id) REFERENCES locations(id),
     FOREIGN KEY (staff_id) REFERENCES employees(id)
+);
+
+-- Special Messages Table
+CREATE TABLE special_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message_text TEXT NOT NULL,
+    is_active BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Pre-populate Locations

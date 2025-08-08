@@ -61,6 +61,32 @@
     background: #fff;
     color: #333;
   }
+  .meal-count {
+    font-weight: 500;
+    color: #1976d2;
+  }
+  .consumed-count {
+    font-weight: 500;
+    color: #4caf50;
+  }
+  .table-info {
+    background-color: #e3f2fd !important;
+    font-weight: 500;
+  }
+  .table-info td {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+  }
+  .filter-form {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .filter-form .form-label {
+    font-weight: 600;
+    color: #495057;
+  }
 </style>
 <button class="back-btn" onclick="window.location.href='{{ url_for('admin.dashboard') }}'" title="Back to Dashboard">
   <i class="bi bi-arrow-left"></i>
@@ -70,15 +96,66 @@
     <div class="col-lg-12">
       <div class="card employee-reports-card">
         <div class="card-header text-center">
-          Employee Reports
+          📄 Employee Reports
         </div>
         <div class="card-body">
+          <!-- Filter Form -->
+          <form method="get" class="mb-4 filter-form">
+            <div class="row">
+              <div class="col-md-4">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date or '' }}">
+              </div>
+              <div class="col-md-4">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date or '' }}">
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                  <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                <a href="{{ url_for('admin.employee_reports') }}" class="btn btn-outline-secondary me-2">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Clear
+                </a>
+                <form method="get" action="{{ url_for('admin.export_employee_report') }}" style="display:inline;">
+                  {% if start_date %}
+                    <input type="hidden" name="start_date" value="{{ start_date }}">
+                  {% endif %}
+                  {% if end_date %}
+                    <input type="hidden" name="end_date" value="{{ end_date }}">
+                  {% endif %}
+                  <button type="submit" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-download me-1"></i>Export
+                  </button>
+                </form>
+                <button class="btn btn-outline-secondary" onclick="window.print()" type="button">
+                  <i class="bi bi-printer me-1"></i>Print
+                </button>
+              </div>
+            </div>
+          </form>
+          
+          {% if start_date or end_date %}
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            Showing data for 
+            {% if start_date and end_date %}
+              {{ start_date }} to {{ end_date }}
+            {% elif start_date %}
+              from {{ start_date }}
+            {% elif end_date %}
+              until {{ end_date }}
+            {% endif %}
+          </div>
+          {% endif %}
+          
           <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle mb-0">
               <thead>
                 <tr>
                   <th>Employee</th>
                   <th>Department</th>
+                  <th>Location</th>
                   <th>Meals Booked</th>
                   <th>Meals Consumed</th>
                 </tr>
@@ -88,19 +165,19 @@
                 <tr>
                   <td>{{ emp.employee }}</td>
                   <td>{{ emp.department or '-' }}</td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td>{{ emp.location or '-' }}</td>
+                  <td class="meal-count">{{ emp.meals_booked or 0 }}</td>
+                  <td class="consumed-count">{{ emp.meals_consumed or 0 }}</td>
                 </tr>
                 {% endfor %}
+                <tr class="table-info">
+                  <td><strong>Total</strong></td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td class="meal-count"><strong>{{ employees | sum(attribute='meals_booked') or 0 }}</strong></td>
+                  <td class="consumed-count"><strong>{{ employees | sum(attribute='meals_consumed') or 0 }}</strong></td>
+                </tr>
               </tbody>
-            </table>
-          </div>
-          <div class="mt-4 text-end">
-            <form method="get" action="{{ url_for('admin.export_employee_report') }}" style="display:inline;">
-              <button type="submit" class="btn btn-outline-primary">
-                <i class="bi bi-download me-2"></i>Export
-              </button>
-            </form>
           </div>
         </div>
       </div>
