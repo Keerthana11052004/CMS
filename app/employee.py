@@ -130,16 +130,6 @@ def dashboard():
         """, (location_id, today))
         daily_menu = cur.fetchall()
 
-        # If no menu for today, get the most recent menu for the location
-        if not daily_menu:
-            cur.execute("""
-                SELECT meal_type, items
-                FROM daily_menus
-                WHERE location_id = %s AND menu_date <= %s
-                ORDER BY menu_date DESC, FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')
-                LIMIT 3
-            """, (location_id, today))
-            daily_menu = cur.fetchall()
 
     return render_template('employee/dashboard.html',
                          today_bookings=today_bookings,
@@ -378,16 +368,6 @@ def view_menu():
         """, (location_id, today))
         menu = cur.fetchall()
 
-        # If no menu for today, get the most recent menu for the location
-        if not menu:
-            cur.execute("""
-                SELECT meal_type, items
-                FROM daily_menus
-                WHERE location_id = %s AND menu_date <= %s
-                ORDER BY menu_date DESC, FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')
-                LIMIT 3
-            """, (location_id, today))
-            menu = cur.fetchall()
     else:
         flash('Please select a unit to view the menu.', 'info')
         return redirect(url_for('employee.dashboard'))
@@ -404,4 +384,9 @@ def get_menu_for_location(location_id):
         ORDER BY FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')
     """, (location_id, today))
     menu = cur.fetchall()
+    
+    # If no menu for today, return an empty list
+    if not menu:
+        return {'menu': []}
+    
     return {'menu': menu}
