@@ -53,9 +53,9 @@ def create_app():
     app.config['BABEL_DEFAULT_LOCALE'] = 'en'
     app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', '0') == '1'
     app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', '127.0.0.1')
-    app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'root')
-    app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', 'Violin@12')
-    app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'food')
+    app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'keerthana')
+    app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', 'V!0lin7ec2025')
+    app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'cms')
     app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
     app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
     app.config['MYSQL_CHARSET'] = 'utf8mb4'
