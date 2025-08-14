@@ -2,8 +2,9 @@ import os
 import platform
 from app import create_app
 from waitress import serve
+import socket
 
-# Only do this on Windows
+# Windows compatibility for site-packages
 if platform.system() == "Windows":
     site_packages_path = os.path.join(
         os.environ['LOCALAPPDATA'],
@@ -17,8 +18,16 @@ if platform.system() == "Windows":
 app = create_app()
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8000))
+    port = 5000
     host = '0.0.0.0'
-    print(f"🚀 Starting server on http://localhost:{port}")
-    print(f"🌍 Accessible on network: http://{os.popen('hostname -I').read().strip()}:{port}")
+    url_prefix = "/cms"
+
+    print(f"🚀 Starting CMS server on http://localhost:{port}{url_prefix}")
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except:
+        ip = "127.0.0.1"
+    print(f"🌍 Accessible on network: http://{ip}:{port}{url_prefix}")
+
+    # Start server with Waitress
     serve(app, host=host, port=port)
