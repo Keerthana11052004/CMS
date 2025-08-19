@@ -5,6 +5,7 @@ from flask_bootstrap import Bootstrap
 from flask_wtf import CSRFProtect
 from flask_babel import Babel
 import os
+from datetime import datetime
 
 # Initialize extensions
 mysql = MySQL()
@@ -47,22 +48,32 @@ def load_user(user_id):
                 if loc:
                     location = loc['name']
             return User(user['id'], name=user['name'], email=user['email'], role=role, department=department, location=location, employee_id=user['employee_id'])
-    except:
-        pass
-    return None
+    except Exception as e:
+        import traceback
+        with open("app_errors.log", "a") as log_file:
+            log_file.write(f"[{datetime.now()}] Error loading user: {e}\n")
+            traceback.print_exc(file=log_file)
+        print(f"Error loading user: {e}") # Keep print for local dev if not suppressed
+        traceback.print_exc() # Print to console as well
+        return None
 
 # App factory
-def create_app():
-    app = Flask(__name__, static_folder='static')
+def create_app(url_prefix=None):
+    print("Flask application creation started.") # Very early print statement
+    app = Flask(__name__, static_folder='static', static_url_path=f"{url_prefix}/static" if url_prefix else "/static")
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-in-production')
     app.config['LANGUAGES'] = ['en', 'ta', 'hi']
     app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+    app.debug = True # Enable debug mode for detailed error messages
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
+    app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
 
     # MySQL config
-    app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', '127.0.0.1')
-    app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'root')
-    app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', 'Violin@12')
-    app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'food')
+    app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', '172.31.24.226')
+    app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
+    app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'keerthana')
+    app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', 'V!0lin7ec2025')
+    app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'CMS')
     app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
     mysql.init_app(app)
@@ -81,12 +92,15 @@ def create_app():
     from .cms import cms_blueprint
     from .employee import employee_bp
     from .staff import staff_bp
-    from .admin import admin_bp
+    from .admin import admin_bp, init_admin_config
 
-    app.register_blueprint(cms_blueprint, url_prefix='/cms')
-    app.register_blueprint(employee_bp, url_prefix='/employee')
-    app.register_blueprint(staff_bp, url_prefix='/staff')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
+    # Initialize admin config with app settings
+    init_admin_config(app)
+
+    app.register_blueprint(cms_blueprint, url_prefix=url_prefix)
+    app.register_blueprint(employee_bp, url_prefix=f"{url_prefix}/employee")
+    app.register_blueprint(staff_bp, url_prefix=f"{url_prefix}/staff")
+    app.register_blueprint(admin_bp, url_prefix=f"{url_prefix}/admin")
 
     @app.errorhandler(404)
     def not_found_error(error):
@@ -94,9 +108,21 @@ def create_app():
 
     @app.errorhandler(500)
     def internal_error(error):
-        return render_template('500.html'), 500
+        import traceback
+        tb = traceback.format_exc()
+        print(f"Unhandled Internal Server Error: {error}")
+        print(tb)
+        return f"<h1>Internal Server Error</h1><pre>{tb}</pre>", 500
 
-    @app.route('/')
+    @app.errorhandler(Exception)
+    def unhandled_exception(e):
+        import traceback
+        tb = traceback.format_exc()
+        print(f"Caught unhandled exception: {e}")
+        print(tb)
+        return f"<h1>Unhandled Exception</h1><pre>{tb}</pre>", 500
+
+    @app.route(f'{url_prefix}/')
     def index():
         current_lang = session.get('lang', app.config['BABEL_DEFAULT_LOCALE'])
         return render_template('index.html', current_lang=current_lang)

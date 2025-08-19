@@ -68,7 +68,7 @@
     color: #fff;
   }
 </style>
-<button class="back-btn" onclick="window.location.href='{{ url_for('staff.dashboard') }}'" title="Back to Dashboard">
+<button class="back-btn" onclick="window.location.href='{{ dashboard_url }}'" title="Back to Dashboard">
   <i class="bi bi-arrow-left"></i>
 </button>
 <div class="container py-5">
@@ -240,7 +240,7 @@ document.getElementById('processManual').addEventListener('click', function() {
 });
 
 function processQRCode(qrData) {
-  fetch('/staff/scan_qr', {
+  fetch('/cms/staff/scan_qr', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

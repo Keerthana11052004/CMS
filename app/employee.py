@@ -8,6 +8,21 @@ from datetime import date, datetime, time
 
 employee_bp = Blueprint('employee', __name__, url_prefix='/employee')
 
+@employee_bp.before_request
+def before_request_log():
+    try:
+        # This will execute before any request to this blueprint
+        # You can add logging here to see if the request even reaches this point
+        print(f"Employee Blueprint: Request received for {request.path}")
+    except Exception as e:
+        import traceback
+        with open("app_errors.log", "a") as log_file:
+            log_file.write(f"[{datetime.now()}] Error in employee_bp.before_request: {e}\n")
+            traceback.print_exc(file=log_file)
+        print(f"Error in employee_bp.before_request: {e}")
+        traceback.print_exc()
+        abort(500)
+
 @employee_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -48,104 +63,116 @@ def logout():
 @login_required
 def dashboard():
     cur = mysql.connection.cursor()
-    
-    # Fetch all locations for the unit selector
-    cur.execute("SELECT id, name FROM locations ORDER BY name")
-    locations = cur.fetchall()
-    
-    # Get today's booking status
-    from datetime import date, timedelta
-    today = date.today()
-    
-    cur.execute("""
-        SELECT b.*, m.name as meal_name, l.name as location_name
-        FROM bookings b
-        JOIN meals m ON b.meal_id = m.id
-        JOIN locations l ON b.location_id = l.id
-        WHERE b.employee_id = %s AND b.booking_date = %s
-        ORDER BY b.shift
-    """, (current_user.id, today))
-    
-    today_bookings = cur.fetchall()
-    
-    # Get bookings for past 7 days for chart
-    seven_days_ago = today - timedelta(days=6)
-    
-    cur.execute("""
-        SELECT 
-            DATE(b.booking_date) as date,
-            b.shift,
-            b.status,
-            COUNT(*) as count
-        FROM bookings b
-        WHERE b.employee_id = %s 
-        AND b.booking_date >= %s 
-        AND b.booking_date <= %s
-        GROUP BY DATE(b.booking_date), b.shift, b.status
-        ORDER BY DATE(b.booking_date), b.shift
-    """, (current_user.id, seven_days_ago, today))
-    
-    booking_data = cur.fetchall()
-    
-    # Process data for chart
-    chart_data = {}
-    for i in range(7):
-        chart_date = seven_days_ago + timedelta(days=i)
-        chart_data[chart_date.strftime('%Y-%m-%d')] = {
-            'date': chart_date.strftime('%b %d'),
-            'Breakfast': 0,
-            'Lunch': 0,
-            'Dinner': 0
-        }
-    
-    for booking in booking_data:
-        date_str = booking['date'].strftime('%Y-%m-%d')
-        if date_str in chart_data:
-            chart_data[date_str][booking['shift']] = booking['count']
-    
-    chart_labels = [data['date'] for data in chart_data.values()]
-    breakfast_data = [data['Breakfast'] for data in chart_data.values()]
-    lunch_data = [data['Lunch'] for data in chart_data.values()]
-    dinner_data = [data['Dinner'] for data in chart_data.values()]
-
-    # Get employee's location from their profile, with a fallback to a default
-    cur.execute("SELECT location_id FROM employees WHERE id = %s", (current_user.id,))
-    user_location = cur.fetchone()
-    if user_location and user_location['location_id']:
-        location_id = user_location['location_id']
-    else:
-        # Fallback to a default location if not set for the user
-        cur.execute("SELECT id FROM locations ORDER BY id LIMIT 1")
-        default_location = cur.fetchone()
-        location_id = default_location['id'] if default_location else None
-
-    daily_menu = []
-    if location_id:
-        # Try to get today's menu
+    try:
+        # Initialize all variables with safe defaults
+        today_bookings = []
+        chart_labels = []
+        breakfast_data = []
+        lunch_data = []
+        dinner_data = []
+        locations = []
+        daily_menu = []
+        # Fetch all locations for the unit selector
+        cur.execute("SELECT id, name FROM locations ORDER BY name")
+        locations = cur.fetchall()
+        
+        # Get today's booking status
+        from datetime import date, timedelta
+        today = date.today()
+        
         cur.execute("""
-            SELECT meal_type, items
-            FROM daily_menus
-            WHERE location_id = %s AND menu_date = %s
-            ORDER BY FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')
-        """, (location_id, today))
-        daily_menu = cur.fetchall()
+            SELECT b.*, m.name as meal_name, l.name as location_name
+            FROM bookings b
+            JOIN meals m ON b.meal_id = m.id
+            JOIN locations l ON b.location_id = l.id
+            WHERE b.employee_id = %s AND b.booking_date = %s
+            ORDER BY b.shift
+        """, (current_user.id, today))
+        
+        today_bookings = cur.fetchall()
+        
+        # Get bookings for past 7 days for chart
+        seven_days_ago = today - timedelta(days=6)
+        
+        cur.execute("""
+            SELECT
+                DATE(b.booking_date) as date,
+                b.shift,
+                b.status,
+                COUNT(*) as count
+            FROM bookings b
+            WHERE b.employee_id = %s
+            AND b.booking_date >= %s
+            AND b.booking_date <= %s
+            GROUP BY DATE(b.booking_date), b.shift, b.status
+            ORDER BY DATE(b.booking_date), b.shift
+        """, (current_user.id, seven_days_ago, today))
+        
+        booking_data = cur.fetchall()
+        
+        # Process data for chart
+        chart_data = {}
+        for i in range(7):
+            chart_date = seven_days_ago + timedelta(days=i)
+            chart_data[chart_date.strftime('%Y-%m-%d')] = {
+                'date': chart_date.strftime('%b %d'),
+                'Breakfast': 0,
+                'Lunch': 0,
+                'Dinner': 0
+            }
+        
+        for booking in booking_data:
+            date_str = booking['date'].strftime('%Y-%m-%d')
+            if date_str in chart_data:
+                chart_data[date_str][booking['shift']] = booking['count']
+        
+        chart_labels = [data['date'] for data in chart_data.values()] if chart_data else []
+        breakfast_data = [data['Breakfast'] for data in chart_data.values()] if chart_data else []
+        lunch_data = [data['Lunch'] for data in chart_data.values()] if chart_data else []
+        dinner_data = [data['Dinner'] for data in chart_data.values()] if chart_data else []
+
+        # Get employee's location from their profile, with a fallback to a default
+        cur.execute("SELECT location_id FROM employees WHERE id = %s", (current_user.id,))
+        user_location = cur.fetchone()
+        if user_location and user_location['location_id']:
+            location_id = user_location['location_id']
+        else:
+            # Fallback to a default location if not set for the user
+            cur.execute("SELECT id FROM locations ORDER BY id LIMIT 1")
+            default_location = cur.fetchone()
+            location_id = default_location['id'] if default_location else None
+
+        daily_menu = []
+        if location_id is not None: # Ensure location_id is not None before querying
+            # Try to get today's menu
+            cur.execute("""
+                SELECT meal_type, items
+                FROM daily_menus
+                WHERE location_id = %s AND menu_date = %s
+                ORDER BY FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')
+            """, (location_id, today))
+            daily_menu = cur.fetchall()
 
 
-    return render_template('employee/dashboard.html',
-                         today_bookings=today_bookings,
-                         chart_labels=chart_labels,
-                         breakfast_data=breakfast_data,
-                         lunch_data=lunch_data,
-                         dinner_data=dinner_data,
-                         locations=locations,
-                         daily_menu=daily_menu)
+        return render_template('employee/dashboard.html',
+                            today_bookings=today_bookings,
+                            chart_labels=chart_labels,
+                            breakfast_data=breakfast_data,
+                            lunch_data=lunch_data,
+                            dinner_data=dinner_data,
+                            locations=locations,
+                            daily_menu=daily_menu)
+    except Exception as e:
+        print(f"Error in employee dashboard: {e}")
+        import traceback
+        traceback.print_exc()
+        abort(500)
 
 @employee_bp.route('/select_unit', methods=['POST'])
 @login_required
 def select_unit():
     unit_id = request.form.get('unit_id')
     if unit_id:
-        session['selected_unit_id'] = int(unit_id)
         session['selected_unit_id'] = int(unit_id)
         return {'status': 'success', 'message': 'Unit selected successfully!'}
     else:

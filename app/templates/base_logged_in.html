@@ -284,7 +284,6 @@
   <i class="bi bi-list"></i>
 </button>
 <div class="d-flex justify-content-end align-items-center" style="position: fixed; top: 16px; right: 16px; z-index: 2100; gap: 1rem;">
-  <button class="back-btn" id="backButton" aria-label="{{ _('Logout') }}" onclick="window.location.href='{{ url_for('admin.logout') }}';">
     <i class="bi bi-box-arrow-right"></i>
   </button>
 </div>
@@ -383,7 +382,8 @@
   });
 </script>
 <div id="js-data-container"
-    data-initial-selected-unit-id="{{ selected_unit_id | tojson | default('null') }}"
+    data-initial-selected-unit-id="{{ selected_unit_id | default('null') | tojson }}"
+
     data-select-unit-url="{{ url_for('employee.select_unit') }}"
     data-get-menu-for-location-url-base="{{ url_for('employee.get_menu_for_location', location_id=0) }}"
     style="display: none;">

@@ -3,6 +3,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app.forms import LoginForm
 from app.utils import decode_qr_code
 from datetime import date
+import sys
 
 staff_bp = Blueprint('staff', __name__, url_prefix='/staff')
 
@@ -35,6 +36,7 @@ def login():
 
 @staff_bp.route('/logout')
 def logout():
+    print("[DEBUG] Logout function called.", file=sys.stderr)
     logout_user()
     flash('Logged out successfully.', 'info')
     return redirect(url_for('index'))
@@ -42,7 +44,8 @@ def logout():
 @staff_bp.route('/qr_scanner')
 @login_required
 def qr_scanner():
-    return render_template('staff/qr_scanner.html')
+    dashboard_url = url_for('staff.dashboard')
+    return render_template('staff/qr_scanner.html', dashboard_url=dashboard_url)
 
 @staff_bp.route('/test_db')
 @login_required
@@ -145,7 +148,7 @@ def create_test_booking():
         existing_booking = cur.fetchone()
         
         if existing_booking:
-            return jsonify({
+            response_data = {
                 'success': True,
                 'message': 'Test booking already exists',
                 'booking': {
@@ -156,7 +159,9 @@ def create_test_booking():
                     'shift': existing_booking['shift'],
                     'status': existing_booking['status']
                 }
-            })
+            }
+            print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+            return jsonify(response_data)
         
         # Create test booking
         cur.execute("""
@@ -168,7 +173,7 @@ def create_test_booking():
         
         mysql.connection.commit()
         
-        return jsonify({
+        response_data = {
             'success': True,
             'message': 'Test booking created successfully',
             'booking': {
@@ -179,7 +184,9 @@ def create_test_booking():
                 'shift': 'Lunch',
                 'status': 'Booked'
             }
-        })
+        }
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
         
     except Exception as e:
         print(f"[DEBUG] Create test booking error: {str(e)}", file=sys.stderr)
@@ -195,7 +202,7 @@ def scan_qr():
     import sys
     print("=== SCAN_QR CALLED ===", file=sys.stderr)
     print("request.method:", request.method, file=sys.stderr)
-    print("request.is_json:", request.is_json, file=sys.stderr)
+    print("request.is_json:", request.method, file=sys.stderr)
     print("request.headers:", dict(request.headers), file=sys.stderr)
     print("request.data:", request.data, file=sys.stderr)
     print("request.form:", request.form, file=sys.stderr)
@@ -211,13 +218,17 @@ def scan_qr():
     print("qr_data:", qr_data, file=sys.stderr)
     
     if not qr_data:
-        return jsonify({'success': False, 'message': 'No QR data provided'})
+        response_data = {'success': False, 'message': 'No QR data provided'}
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
     
     # Decode QR data
     from app.utils import decode_qr_code
     decoded_data = decode_qr_code(qr_data)
     if not decoded_data:
-        return jsonify({'success': False, 'message': 'Invalid QR code format'})
+        response_data = {'success': False, 'message': 'Invalid QR code format'}
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
     
     # Find the booking (allow only if not already consumed)
     cur = mysql.connection.cursor()
@@ -225,7 +236,9 @@ def scan_qr():
     booking_id = decoded_data.get('booking_id')
     
     if not booking_id:
-        return jsonify({'success': False, 'message': 'Invalid QR code: booking_id is missing.'})
+        response_data = {'success': False, 'message': 'Invalid QR code: booking_id is missing.'}
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
     
     try:
         # Fetch the specific booking using the unique booking_id
@@ -239,10 +252,14 @@ def scan_qr():
         booking_to_process = cur.fetchone()
         
         if not booking_to_process:
-            return jsonify({'success': False, 'message': f'Booking with ID {booking_id} not found.'})
+            response_data = {'success': False, 'message': f'Booking with ID {booking_id} not found.'}
+            print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+            return jsonify(response_data)
             
     except Exception as e:
-        return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
+        response_data = {'success': False, 'message': f'Database error: {str(e)}'}
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
 
     # Process the booking
     status = booking_to_process['status']
@@ -250,7 +267,7 @@ def scan_qr():
         status = status.decode('utf-8')
         
     if status.strip() == 'Consumed':
-        return jsonify({
+        response_data = {
             'success': True,
             'message': 'ℹ️ This meal has already been consumed.',
             'booking': {
@@ -261,9 +278,11 @@ def scan_qr():
                 'shift': booking_to_process['shift'],
                 'status': status
             }
-        })
+        }
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
     elif status.strip() != 'Booked':
-        return jsonify({
+        response_data = {
             'success': False,
             'message': 'Booking is not in a valid state for consumption.',
             'booking': {
@@ -274,7 +293,9 @@ def scan_qr():
                 'shift': booking_to_process['shift'],
                 'status': booking_to_process['status']
             }
-        })
+        }
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
     
     # If we reach here, it means booking_to_process is 'Booked' and ready for consumption
     booking = booking_to_process # Assign to 'booking' for the rest of the function
@@ -291,7 +312,7 @@ def scan_qr():
             VALUES (%s, %s, %s, %s, %s)
         """, (booking['id'], booking['employee_id'], booking['meal_id'], booking['location_id'], current_user.id))
         mysql.connection.commit()
-        return jsonify({
+        response_data = {
             'success': True, 
             'message': f'✅ Meal Verified Successfully for {booking["employee_name"]}',
             'booking': {
@@ -301,12 +322,16 @@ def scan_qr():
                 'date': booking['booking_date'].strftime('%Y-%m-%d'),
                 'shift': booking['shift']
             }
-        })
+        }
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
     except Exception as e:
         import traceback
         tb = traceback.format_exc()
         mysql.connection.rollback()
-        return jsonify({'success': False, 'message': f'Error processing meal: {str(e)}', 'trace': tb})
+        response_data = {'success': False, 'message': f'Error processing meal: {str(e)}', 'trace': tb}
+        print(f"[DEBUG] JSON response: {response_data}", file=sys.stderr)
+        return jsonify(response_data)
 
 @staff_bp.route('/dashboard')
 @login_required
@@ -340,7 +365,7 @@ def dashboard():
         FROM bookings b
         JOIN locations l ON b.location_id = l.id
         GROUP BY l.name, b.shift
-    ''')
+        ''')
     breakdown_rows = cur.fetchall()
     meal_breakdown = {}
     for row in breakdown_rows:
@@ -515,4 +540,4 @@ def export_monthly_summary_csv():
 @login_required
 def manage_roles():
     # TODO: Role management for supervisors
-    return render_template('staff/roles.html') 
+    return render_template('staff/roles.html')
