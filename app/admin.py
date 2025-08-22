@@ -1,9 +1,9 @@
 import os
 from flask import Blueprint, render_template, redirect, url_for, request, flash, send_file, make_response, current_app
 from flask_login import login_required, login_user, logout_user, current_user
-from app import mysql, User
+from CMS_Pro_Copy.app import mysql, User
 import hashlib
-from app.forms import LoginForm, AddUserForm, VendorForm, AddMenuForm
+from CMS_Pro_Copy.app.forms import LoginForm, AddUserForm, VendorForm, AddMenuForm
 import csv
 import io
 import pandas as pd

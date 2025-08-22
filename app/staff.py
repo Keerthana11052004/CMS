@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
-from app.forms import LoginForm
-from app.utils import decode_qr_code
+from CMS_Pro_Copy.app.forms import LoginForm
+from CMS_Pro_Copy.app.utils import decode_qr_code
 from datetime import date
 import sys
 
@@ -10,7 +10,7 @@ staff_bp = Blueprint('staff', __name__, url_prefix='/staff')
 @staff_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    from app import mysql, User
+    from CMS_Pro_Copy.app import mysql, User
     cur = mysql.connection.cursor()
     cur.execute("SELECT message_text FROM special_messages WHERE is_active = TRUE AND DATE(created_at) = CURDATE() ORDER BY created_at DESC LIMIT 1")
     special_message = cur.fetchone()
@@ -51,7 +51,7 @@ def qr_scanner():
 @login_required
 def test_db():
     """Test database connection and table structure"""
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     import sys
     try:
         # Test connection
@@ -107,7 +107,7 @@ def test_db():
 @login_required
 def simple_test():
     """Simple database test without complex queries"""
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     import sys
     try:
         cur = mysql.connection.cursor()
@@ -126,7 +126,7 @@ def simple_test():
 @login_required
 def create_test_booking():
     """Create a test booking for QR scanner testing"""
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     import sys
     from datetime import date, timedelta
     
@@ -198,7 +198,7 @@ def create_test_booking():
 @staff_bp.route('/scan_qr', methods=['POST'])
 @login_required
 def scan_qr():
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     import sys
     print("=== SCAN_QR CALLED ===", file=sys.stderr)
     print("request.method:", request.method, file=sys.stderr)
@@ -223,7 +223,7 @@ def scan_qr():
         return jsonify(response_data)
     
     # Decode QR data
-    from app.utils import decode_qr_code
+    from CMS_Pro_Copy.app.utils import decode_qr_code
     decoded_data = decode_qr_code(qr_data)
     if not decoded_data:
         response_data = {'success': False, 'message': 'Invalid QR code format'}
@@ -336,7 +336,7 @@ def scan_qr():
 @staff_bp.route('/dashboard')
 @login_required
 def dashboard():
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     from datetime import date
     cur = mysql.connection.cursor()
     # Unit-wise meal data for charts (existing code)
@@ -411,7 +411,7 @@ def dashboard():
 @staff_bp.route('/summary')
 @login_required
 def summary():
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     today = date.today()
     cur = mysql.connection.cursor()
     cur.execute('''
@@ -430,7 +430,7 @@ def summary():
 @staff_bp.route('/summary/export')
 @login_required
 def export_summary_csv():
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     import csv
     from io import StringIO
     from flask import Response
@@ -467,7 +467,7 @@ def export_summary_csv():
 @staff_bp.route('/monthly_summary')
 @login_required
 def monthly_summary():
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     from datetime import date
     cur = mysql.connection.cursor()
     today = date.today()
@@ -494,7 +494,7 @@ def monthly_summary():
 @staff_bp.route('/monthly_summary/export')
 @login_required
 def export_monthly_summary_csv():
-    from app import mysql
+    from CMS_Pro_Copy.app import mysql
     import csv
     from io import StringIO
     from flask import Response

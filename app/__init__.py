@@ -1,11 +1,23 @@
+import os
+import sys
+import platform
 from flask import Flask, render_template, request, session
 from flask_mysqldb import MySQL
 from flask_login import LoginManager, UserMixin
 from flask_bootstrap import Bootstrap
 from flask_wtf import CSRFProtect
+
+# Explicitly add user site-packages path for stubborn module imports
+if platform.system() == "Windows":
+    user_site_packages = r'c:\users\vtgs_lap_01\appdata\local\packages\pythonsoftwarefoundation.python.3.13_qbz5n2kfra8p0\localcache\local-packages\python313\site-packages'
+    if user_site_packages not in sys.path:
+        sys.path.insert(0, user_site_packages) # Insert at the beginning to prioritize
 from flask_babel import Babel
-import os
 from datetime import datetime
+import pymysql # Import pymysql to access DictCursor
+from CSV_Param import CSV_Proj_Params # Import the new config loader
+
+Curr_Proj_Name = 'CMS' 
 
 # Initialize extensions
 mysql = MySQL()
@@ -58,9 +70,9 @@ def load_user(user_id):
         return None
 
 # App factory
-def create_app(url_prefix=None):
+def create_app():
     print("Flask application creation started.") # Very early print statement
-    app = Flask(__name__, static_folder='static', static_url_path=f"{url_prefix}/static" if url_prefix else "/static")
+    app = Flask(__name__, static_folder='static', static_url_path=f"/static" "")
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-in-production')
     app.config['LANGUAGES'] = ['en', 'ta', 'hi']
     app.config['BABEL_DEFAULT_LOCALE'] = 'en'
@@ -68,13 +80,14 @@ def create_app(url_prefix=None):
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
 
-    # MySQL config
-    app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', '172.31.24.226')
-    app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
-    app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'keerthana')
-    app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', 'V!0lin7ec2025')
-    app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'CMS')
-    app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+    # Load MySQL config from CSV
+    proj_params = CSV_Proj_Params(Curr_Proj_Name)
+    app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', proj_params.get('MYSQL_HOST'))
+    app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', proj_params.get('MYSQL_PORT')))
+    app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', proj_params.get('MYSQL_USER'))
+    app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', proj_params.get('MYSQL_PASSWORD'))
+    app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', proj_params.get('MYSQL_DB'))
+    app.config['MYSQL_CURSORCLASS'] = proj_params.get('MYSQL_CURSORCLASS', 'DictCursor')
 
     mysql.init_app(app)
     login_manager.init_app(app)
@@ -97,10 +110,12 @@ def create_app(url_prefix=None):
     # Initialize admin config with app settings
     init_admin_config(app)
 
-    app.register_blueprint(cms_blueprint, url_prefix=url_prefix)
-    app.register_blueprint(employee_bp, url_prefix=f"{url_prefix}/employee")
-    app.register_blueprint(staff_bp, url_prefix=f"{url_prefix}/staff")
-    app.register_blueprint(admin_bp, url_prefix=f"{url_prefix}/admin")
+    # Register blueprints with their intended internal prefixes
+    url_prefix = ""
+    app.register_blueprint(cms_blueprint, url_prefix='/') # CMS home is at the root of its app
+    app.register_blueprint(employee_bp, url_prefix='/employee')
+    app.register_blueprint(staff_bp, url_prefix='/staff')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
 
     @app.errorhandler(404)
     def not_found_error(error):
@@ -122,7 +137,7 @@ def create_app(url_prefix=None):
         print(tb)
         return f"<h1>Unhandled Exception</h1><pre>{tb}</pre>", 500
 
-    @app.route(f'{url_prefix}/')
+    @app.route('/') # Index route for the CMS app itself
     def index():
         current_lang = session.get('lang', app.config['BABEL_DEFAULT_LOCALE'])
         return render_template('index.html', current_lang=current_lang)
